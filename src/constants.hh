@@ -16,8 +16,8 @@ struct GlobalsHolder
 {
 	bool quit = false;
 
-	int windowWidth = 800;
-	int windowHeight = 450;
+	int windowWidth = 1008;
+	int windowHeight = 567;
 
 	// retarded
 	Gui *guiptr;

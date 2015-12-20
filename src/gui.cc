@@ -224,6 +224,9 @@ void Gui::Draw()
   glBindVertexArray(0);
   glBindBuffer(GL_ARRAY_BUFFER, 0);
 
+  bool yes = true;
+  ImGui::ShowTestWindow(&yes);
+
   ImGui::Render();
 }
 

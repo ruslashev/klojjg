@@ -27,6 +27,10 @@ static void mouseScrollCb(GLFWwindow *window, double xoffset, double yoffset)
 {
   ImGui::GetIO().MouseWheel += yoffset;
 }
+static void errorCb(int error, const char* description)
+{
+  die(description);
+}
 
 class MainLoop
 {
@@ -34,8 +38,13 @@ public:
   GLFWwindow *window;
   double simulatedTime;
   MainLoop() {
+    simulatedTime = 0;
     if (!glfwInit())
       die("Failed to initialize GLFW");
+    glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
+    glfwWindowHint(GLFW_DECORATED, 0);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 1);
     window = glfwCreateWindow(Globals.windowWidth, Globals.windowHeight,
         "klojjeg", NULL, NULL);
     if (!window) {
@@ -47,15 +56,21 @@ public:
     glfwSetCursorPosCallback(window, mouseMoveCb);
     glfwSetMouseButtonCallback(window, mouseInputCb);
     glfwSetScrollCallback(window, mouseScrollCb);
+    glfwSetErrorCallback(errorCb);
   };
   bool Update() {
-    Globals.guiptr->Update(Constants.updateMilliseconds);
-    simulatedTime += glfwGetTime();
     return !glfwWindowShouldClose(window) && !Globals.quit;
   }
   void Display() {
+    glfwGetFramebufferSize(window, &Globals.windowWidth, &Globals.windowHeight);
+    glViewport(0, 0, Globals.windowWidth, Globals.windowHeight);
+    ImGui::NewFrame();
     Globals.guiptr->Draw();
     glfwSwapBuffers(window);
+  }
+  ~MainLoop() {
+    glfwDestroyWindow(window);
+    glfwTerminate();
   }
 };
 
@@ -70,18 +85,17 @@ int main()
   if (!FontLoader::loadEmbeddedFont(imFont, fontFileBuffer,
         _CommeLight_ttf.data, _CommeLight_ttf.size))
     return 1;
-	gui.CreateFontTexture(imFont);
+  gui.CreateFontTexture(imFont);
 
   while (ml.Update()) {
     double realTime = glfwGetTime();
     while (ml.simulatedTime < realTime) {
-      glfwPollEvents();
-      ml.Update();
+      Globals.guiptr->Update(Constants.updateMilliseconds);
+      ml.simulatedTime += glfwGetTime();
     }
 
-    ImGui::NewFrame();
-
     ml.Display();
+    glfwPollEvents();
   }
 
   return 0;
