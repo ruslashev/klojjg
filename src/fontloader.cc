@@ -38,8 +38,8 @@ bool FontLoader::loadEmbeddedFont(ImFont *&imFont,
 
   ImFontConfig config;
   config.FontDataOwnedByAtlas = false;
-  // config.OversampleH = 8;
-  // config.OversampleV = 8;
+  config.OversampleH = Constants.fontOversample;
+  config.OversampleV = Constants.fontOversample;
   imFont = ImGui::GetIO().Fonts->AddFontFromMemoryTTF(uncompBuffer.get(),
       uncompSize, Constants.fontSize, &config);
 

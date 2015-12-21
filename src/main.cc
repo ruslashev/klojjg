@@ -12,20 +12,25 @@ static void keyInputCb(GLFWwindow *window, int key, int scancode, int action, in
   if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
     Globals.quit = true;
   ImGuiIO& io = ImGui::GetIO();
-  io.KeysDown[key] = action == GLFW_PRESS;
+  io.KeysDown[key] = (action != GLFW_RELEASE);
 }
 static void mouseMoveCb(GLFWwindow *window, double xpos, double ypos)
 {
-  Globals.guiptr->mousePosX = xpos;
-  Globals.guiptr->mousePosY = ypos;
+  if (glfwGetWindowAttrib(window, GLFW_FOCUSED)) {
+    Globals.guiptr->mousePosX = xpos;
+    Globals.guiptr->mousePosY = ypos;
+    ImGuiIO& io = ImGui::GetIO();
+    io.MousePos = ImVec2(xpos, ypos);
+  }
 }
-static void mouseInputCb(GLFWwindow *window, int button, int action, int mods)
+static void mouseInputCb(GLFWwindow*, int button, int action, int)
 {
-  Globals.guiptr->mousePressed[button] = action == GLFW_PRESS;
+  if (action == GLFW_PRESS && button >= 0 && button <= 3)
+    Globals.guiptr->mousePressed[button] = true;
 }
 static void mouseScrollCb(GLFWwindow *window, double xoffset, double yoffset)
 {
-  ImGui::GetIO().MouseWheel += yoffset;
+  ImGui::GetIO().MouseWheel += (float)yoffset;
 }
 static void errorCb(int error, const char* description)
 {
@@ -62,8 +67,13 @@ public:
     return !glfwWindowShouldClose(window) && !Globals.quit;
   }
   void Display() {
-    glfwGetFramebufferSize(window, &Globals.windowWidth, &Globals.windowHeight);
-    glViewport(0, 0, Globals.windowWidth, Globals.windowHeight);
+    int fbw, fbh;
+    ImGuiIO& io = ImGui::GetIO();
+    glfwGetWindowSize(window, &Globals.windowWidth, &Globals.windowHeight);
+    glfwGetFramebufferSize(window, &fbw, &fbh);
+    io.DisplaySize = ImVec2((float)fbw, (float)fbh);
+    io.DisplayFramebufferScale =
+      ImVec2((float)fbw/Globals.windowWidth, (float)fbh/Globals.windowHeight);
     ImGui::NewFrame();
     Globals.guiptr->Draw();
     glfwSwapBuffers(window);
@@ -79,6 +89,9 @@ int main()
   MainLoop ml;
   Gui gui;
   Globals.guiptr = &gui;
+  ImGuiIO& io = ImGui::GetIO();
+
+  const ImVec4 clearColor = ImColor(200, 200, 200);
 
   ImFont *imFont;
   std::unique_ptr<char> fontFileBuffer;
@@ -88,14 +101,20 @@ int main()
   gui.CreateFontTexture(imFont);
 
   while (ml.Update()) {
+    glfwPollEvents();
     double realTime = glfwGetTime();
     while (ml.simulatedTime < realTime) {
-      Globals.guiptr->Update(Constants.updateMilliseconds);
       ml.simulatedTime += glfwGetTime();
     }
+    for (int i = 0; i < 3; i++) {
+      io.MouseDown[i] = Globals.guiptr->mousePressed[i]
+        || (glfwGetMouseButton(ml.window, i) != 0);
+      Globals.guiptr->mousePressed[i] = false;
+    }
 
+    glClearColor(clearColor.x, clearColor.y, clearColor.z, clearColor.w);
+    glClear(GL_COLOR_BUFFER_BIT);
     ml.Display();
-    glfwPollEvents();
   }
 
   return 0;

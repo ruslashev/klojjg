@@ -3,10 +3,29 @@
 
 static void ImGuiRenderDrawLists(ImDrawData *draw_data)
 {
-  Gui *gui = (Gui*)ImGui::GetIO().UserData;
-  GLint last_program, last_texture;
-  glGetIntegerv(GL_CURRENT_PROGRAM, &last_program);
+  const Gui *gui = (Gui*)ImGui::GetIO().UserData;
+  // Backup GL state
+  GLint last_program, last_texture, last_array_buffer,
+        last_element_array_buffer, last_vertex_array, last_blend_src,
+        last_blend_dst, last_blend_equation_rgb, last_blend_equation_alpha,
+        last_viewport[4];
+  glGetIntegerv(GL_CURRENT_PROGRAM, &last_program),
   glGetIntegerv(GL_TEXTURE_BINDING_2D, &last_texture);
+  glGetIntegerv(GL_ARRAY_BUFFER_BINDING, &last_array_buffer);
+  glGetIntegerv(GL_ELEMENT_ARRAY_BUFFER_BINDING, &last_element_array_buffer);
+  glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &last_vertex_array);
+  glGetIntegerv(GL_BLEND_SRC, &last_blend_src);
+  glGetIntegerv(GL_BLEND_DST, &last_blend_dst);
+  glGetIntegerv(GL_BLEND_EQUATION_RGB, &last_blend_equation_rgb);
+  glGetIntegerv(GL_BLEND_EQUATION_ALPHA, &last_blend_equation_alpha);
+  glGetIntegerv(GL_VIEWPORT, last_viewport);
+  GLboolean last_enable_blend = glIsEnabled(GL_BLEND),
+            last_enable_cull_face = glIsEnabled(GL_CULL_FACE),
+            last_enable_depth_test = glIsEnabled(GL_DEPTH_TEST),
+            last_enable_scissor_test = glIsEnabled(GL_SCISSOR_TEST);
+
+  // Setup render state: alpha-blending enabled, no face culling,
+  // no depth testing, scissor enabled
   glEnable(GL_BLEND);
   glBlendEquation(GL_FUNC_ADD);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -15,15 +34,20 @@ static void ImGuiRenderDrawLists(ImDrawData *draw_data)
   glEnable(GL_SCISSOR_TEST);
   glActiveTexture(GL_TEXTURE0);
 
-  // Setup orthographic projection matrix
-  const float width = ImGui::GetIO().DisplaySize.x;
-  const float height = ImGui::GetIO().DisplaySize.y;
-  const float ortho_projection[4][4] =
-  {
-    {  2.0f/width, 0.0f,          0.0f,     0.0f },
-    {  0.0f,       2.0f/-height,  0.0f,     0.0f },
-    {  0.0f,       0.0f,         -1.0f,     0.0f },
-    { -1.0f,       1.0f,          0.0f,     1.0f },
+  // Handle cases of screen coordinates != from framebuffer coordinates
+  // (e.g. retina displays)
+  ImGuiIO& io = ImGui::GetIO();
+  int fb_width = (int)(io.DisplaySize.x*io.DisplayFramebufferScale.x);
+  int fb_height = (int)(io.DisplaySize.y*io.DisplayFramebufferScale.y);
+  draw_data->ScaleClipRects(io.DisplayFramebufferScale);
+
+  // Setup viewport, orthographic projection matrix
+  glViewport(0, 0, (GLsizei)fb_width, (GLsizei)fb_height);
+  const float ortho_projection[4][4] = {
+    { 2.0f/io.DisplaySize.x, 0.0f,                   0.0f, 0.0f },
+    { 0.0f,                  2.0f/-io.DisplaySize.y, 0.0f, 0.0f },
+    { 0.0f,                  0.0f,                  -1.0f, 0.0f },
+    {-1.0f,                  1.0f,                   0.0f, 1.0f },
   };
   glUseProgram(gui->shaderHandle);
   glUniform1i(gui->attribLocationTex, 0);
@@ -32,48 +56,61 @@ static void ImGuiRenderDrawLists(ImDrawData *draw_data)
   glBindVertexArray(gui->vaoHandle);
 
   for (int n = 0; n < draw_data->CmdListsCount; n++) {
-    const ImDrawList* cmd_list = draw_data->CmdLists[n];
-    const ImDrawIdx* idx_buffer_offset = nullptr;
+    const ImDrawList *cmd_list = draw_data->CmdLists[n];
+    const ImDrawIdx *idx_buffer_offset = nullptr;
 
     glBindBuffer(GL_ARRAY_BUFFER, gui->vboHandle);
     glBufferData(GL_ARRAY_BUFFER,
         (GLsizeiptr)cmd_list->VtxBuffer.size()*sizeof(ImDrawVert),
-        (GLvoid*)&cmd_list->VtxBuffer.front(),
-        GL_STREAM_DRAW);
+        (GLvoid*)&cmd_list->VtxBuffer.front(), GL_STREAM_DRAW);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gui->elementsHandle);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER,
         (GLsizeiptr)cmd_list->IdxBuffer.size()*sizeof(ImDrawIdx),
-        (GLvoid*)&cmd_list->IdxBuffer.front(),
-        GL_STREAM_DRAW);
+        (GLvoid*)&cmd_list->IdxBuffer.front(), GL_STREAM_DRAW);
 
-    for (const ImDrawCmd *pcmd = cmd_list->CmdBuffer.begin();
-        pcmd != cmd_list->CmdBuffer.end();
-        pcmd++)
-    {
-      if (pcmd->UserCallback) {
+    for (const ImDrawCmd* pcmd = cmd_list->CmdBuffer.begin();
+        pcmd != cmd_list->CmdBuffer.end(); pcmd++) {
+      if (pcmd->UserCallback)
         pcmd->UserCallback(cmd_list, pcmd);
-      } else {
-        glBindTexture(GL_TEXTURE_2D,
-            (GLuint)(intptr_t)pcmd->TextureId);
+      else {
+        glBindTexture(GL_TEXTURE_2D, (GLuint)(intptr_t)pcmd->TextureId);
         glScissor((int)pcmd->ClipRect.x,
-            (int)(height - pcmd->ClipRect.w),
+            (int)(fb_height - pcmd->ClipRect.w),
             (int)(pcmd->ClipRect.z - pcmd->ClipRect.x),
             (int)(pcmd->ClipRect.w - pcmd->ClipRect.y));
         glDrawElements(GL_TRIANGLES, (GLsizei)pcmd->ElemCount,
-            GL_UNSIGNED_SHORT, idx_buffer_offset);
+            sizeof(ImDrawIdx) == 2 ? GL_UNSIGNED_SHORT : GL_UNSIGNED_INT,
+            idx_buffer_offset);
       }
       idx_buffer_offset += pcmd->ElemCount;
     }
   }
 
-  glBindVertexArray(0);
-  glBindBuffer(GL_ARRAY_BUFFER, 0);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+  // Restore modified GL state
   glUseProgram(last_program);
-  glDisable(GL_SCISSOR_TEST);
   glBindTexture(GL_TEXTURE_2D, last_texture);
+  glBindBuffer(GL_ARRAY_BUFFER, last_array_buffer);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, last_element_array_buffer);
+  glBindVertexArray(last_vertex_array);
+  glBlendEquationSeparate(last_blend_equation_rgb, last_blend_equation_alpha);
+  glBlendFunc(last_blend_src, last_blend_dst);
+  if (last_enable_blend) glEnable(GL_BLEND); else glDisable(GL_BLEND);
+  if (last_enable_cull_face) glEnable(GL_CULL_FACE); else glDisable(GL_CULL_FACE);
+  if (last_enable_depth_test) glEnable(GL_DEPTH_TEST); else glDisable(GL_DEPTH_TEST);
+  if (last_enable_scissor_test) glEnable(GL_SCISSOR_TEST); else glDisable(GL_SCISSOR_TEST);
+  glViewport(last_viewport[0], last_viewport[1],
+      (GLsizei)last_viewport[2], (GLsizei)last_viewport[3]);
 }
+
+#if 0
+static const char* ImGuiGetClipboardText() {
+  return glfwGetClipboardString(g_Window);
+}
+static void ImGui_ImplGlfwGL3_SetClipboardText(const char* text) {
+  glfwSetClipboardString(g_Window, text);
+}
+#endif
 
 Gui::Gui()
 {
@@ -89,8 +126,7 @@ Gui::Gui()
 
   mousePosX = 0;
   mousePosY = 0;
-  mousePressed[0] = false;
-  mousePressed[1] = false;
+  mousePressed[0] = mousePressed[1] = mousePressed[2] = false;
 
   ImGuiIO& io = ImGui::GetIO();
   io.RenderDrawListsFn = ImGuiRenderDrawLists;
@@ -199,11 +235,6 @@ void Gui::CreateFontTexture(ImFont *imFont)
 
 void Gui::Update(int dt)
 {
-  ImGuiIO& io = ImGui::GetIO();
-  io.DeltaTime = dt/1000.;
-  io.MousePos = ImVec2(mousePosX, mousePosY);
-  io.MouseDown[0] = mousePressed[0];
-  io.MouseDown[1] = mousePressed[1];
 }
 
 void Gui::Draw()
