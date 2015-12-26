@@ -3,15 +3,8 @@
 #include "state_game.hh"
 
 StateDispatcher::StateDispatcher() {
-  // extern StateMainmenu state_mainmenu;
-  // extern StateGame state_game;
-  // state_mainmenu.sd = this;
-  // state_game.sd = this;
-}
-
-StateDispatcher::~StateDispatcher() {
-  // delete state_mainmenu;
-  // delete state_game;
+  state_mainmenu.sd = this;
+  state_game.sd = this;
 }
 
 void StateDispatcher::ChangeTo(BaseState *newState) {

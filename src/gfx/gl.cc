@@ -54,8 +54,8 @@ GLuint createShader(GLenum type, const char *path)
 program::program(const char *vert_path, const char *frag_path)
 {
   id = glCreateProgram();
-  GLuint shader1 = create_shader(GL_VERTEX_SHADER, vert_path);
-  GLuint shader2 = create_shader(GL_FRAGMENT_SHADER, frag_path);
+  GLuint shader1 = createShader(GL_VERTEX_SHADER, vert_path);
+  GLuint shader2 = createShader(GL_FRAGMENT_SHADER, frag_path);
   glAttachShader(id, shader1);
   glAttachShader(id, shader2);
   glLinkProgram(id);

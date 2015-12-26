@@ -19,7 +19,6 @@ public:
   BaseState *currentState;
 
   StateDispatcher();
-  ~StateDispatcher();
   void ChangeTo(BaseState *newState);
 };
 
