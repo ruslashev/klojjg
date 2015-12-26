@@ -3,6 +3,9 @@
 
 #include "gfx/gui.hh"
 #include "state.hh"
+
+#include <GLFW/glfw3.h>
+
 #include <cstdarg>
 
 const struct
@@ -27,6 +30,7 @@ struct GlobalsHolder
   // retarded a bit
   Gui *guiptr;
   StateDispatcher *stateDispatcherPtr;
+  GLFWwindow *glfwWindowPtr;
 };
 
 extern GlobalsHolder Globals;

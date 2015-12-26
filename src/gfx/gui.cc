@@ -2,6 +2,8 @@
 #include "../constants.hh"
 #include "../state_game.hh"
 
+#include <GLFW/glfw3.h>
+
 static void ImGuiRenderDrawLists(ImDrawData *draw_data)
 {
   const Gui *gui = (Gui*)ImGui::GetIO().UserData;
@@ -104,14 +106,12 @@ static void ImGuiRenderDrawLists(ImDrawData *draw_data)
       (GLsizei)last_viewport[2], (GLsizei)last_viewport[3]);
 }
 
-#if 0
-static const char* ImGuiGetClipboardText() {
-  return glfwGetClipboardString(g_Window);
+static const char* GetClipboardText() {
+  return glfwGetClipboardString(Globals.glfwWindowPtr);
 }
-static void ImGui_ImplGlfwGL3_SetClipboardText(const char* text) {
-  glfwSetClipboardString(g_Window, text);
+static void SetClipboardText(const char* text) {
+  glfwSetClipboardString(Globals.glfwWindowPtr, text);
 }
-#endif
 
 Gui::Gui()
 {
@@ -127,6 +127,8 @@ Gui::Gui()
 
   ImGuiIO& io = ImGui::GetIO();
   io.RenderDrawListsFn = ImGuiRenderDrawLists;
+  io.SetClipboardTextFn = SetClipboardText;
+  io.GetClipboardTextFn = GetClipboardText;
   io.DisplaySize = ImVec2(Globals.windowWidth, Globals.windowHeight);
   io.IniFilename = NULL;
   io.UserData = this;

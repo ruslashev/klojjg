@@ -6,7 +6,7 @@ StateGame state_game;
 
 void StateGame::Draw()
 {
-  glClearColor(255, 0, 0, 255);
+  glClearColor(255, 255, 255, 255);
   glClear(GL_COLOR_BUFFER_BIT);
 }
 
