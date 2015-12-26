@@ -1,7 +1,9 @@
 #include "constants.hh"
-#include "font.hh"
-#include "fontloader.hh"
-#include "gui.hh"
+#include "gfx/font.hh"
+#include "gfx/fontloader.hh"
+#include "gfx/gui.hh"
+#include "state.hh"
+#include "state_mainmenu.hh"
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -17,16 +19,14 @@ static void keyInputCb(GLFWwindow *window, int key, int scancode, int action, in
 static void mouseMoveCb(GLFWwindow *window, double xpos, double ypos)
 {
   if (glfwGetWindowAttrib(window, GLFW_FOCUSED)) {
-    Globals.guiptr->mousePosX = xpos;
-    Globals.guiptr->mousePosY = ypos;
-    ImGuiIO& io = ImGui::GetIO();
-    io.MousePos = ImVec2(xpos, ypos);
+    Globals.mousePosX = xpos;
+    Globals.mousePosY = ypos;
   }
 }
 static void mouseInputCb(GLFWwindow*, int button, int action, int)
 {
   if (action == GLFW_PRESS && button >= 0 && button <= 3)
-    Globals.guiptr->mousePressed[button] = true;
+    Globals.mousePressed[button] = true;
 }
 static void mouseScrollCb(GLFWwindow *window, double xoffset, double yoffset)
 {
@@ -74,8 +74,6 @@ public:
     io.DisplaySize = ImVec2((float)fbw, (float)fbh);
     io.DisplayFramebufferScale =
       ImVec2((float)fbw/Globals.windowWidth, (float)fbh/Globals.windowHeight);
-    ImGui::NewFrame();
-    Globals.guiptr->Draw();
     glfwSwapBuffers(window);
   }
   ~MainLoop() {
@@ -86,35 +84,58 @@ public:
 
 int main()
 {
-  MainLoop ml;
-  Gui gui;
-  Globals.guiptr = &gui;
-  ImGuiIO& io = ImGui::GetIO();
+  try {
+    MainLoop ml;
+    Gui gui;
+    StateDispatcher stateDispatcher;
+    stateDispatcher.ChangeTo(&state_mainmenu);
 
-  const ImVec4 clearColor = ImColor(200, 200, 200);
+    Globals.guiptr = &gui;
+    Globals.stateDispatcherPtr = &stateDispatcher;
+    Globals.mousePosX = Globals.mousePosY = 0;
+    Globals.mousePressed[0] = Globals.mousePressed[1] =
+      Globals.mousePressed[2] = false;
+    ImGuiIO& io = ImGui::GetIO();
 
-  ImFont *imFont;
-  std::unique_ptr<char> fontFileBuffer;
-  if (!FontLoader::loadEmbeddedFont(imFont, fontFileBuffer,
-        _CommeLight_ttf.data, _CommeLight_ttf.size))
+    ImFont *imFont;
+    std::unique_ptr<char> fontFileBuffer;
+    if (!FontLoader::loadEmbeddedFont(imFont, fontFileBuffer,
+          _CommeLight_ttf.data, _CommeLight_ttf.size))
+      return 1;
+    gui.CreateFontTexture(imFont);
+
+    while (ml.Update()) {
+      glfwPollEvents();
+
+      double realTime = glfwGetTime();
+      while (ml.simulatedTime < realTime) {
+        stateDispatcher.currentState->Update(Constants.updateMilliseconds, ml.simulatedTime);
+        ml.simulatedTime += glfwGetTime();
+      }
+
+      glClearColor(255, 0, 255, 255);
+      glClear(GL_COLOR_BUFFER_BIT);
+
+      stateDispatcher.currentState->Draw();
+
+      ml.Display();
+
+      io.MousePos = ImVec2(Globals.mousePosX, Globals.mousePosY);
+      for (int i = 0; i < 3; i++) {
+        io.MouseDown[i] = Globals.mousePressed[i];
+        Globals.mousePressed[i] = false;
+      }
+    }
+  } catch (std::bad_alloc &e) {
+    fputs("out of memory\n", stderr);
     return 1;
-  gui.CreateFontTexture(imFont);
-
-  while (ml.Update()) {
-    glfwPollEvents();
-    double realTime = glfwGetTime();
-    while (ml.simulatedTime < realTime) {
-      ml.simulatedTime += glfwGetTime();
-    }
-    for (int i = 0; i < 3; i++) {
-      io.MouseDown[i] = Globals.guiptr->mousePressed[i]
-        || (glfwGetMouseButton(ml.window, i) != 0);
-      Globals.guiptr->mousePressed[i] = false;
-    }
-
-    glClearColor(clearColor.x, clearColor.y, clearColor.z, clearColor.w);
-    glClear(GL_COLOR_BUFFER_BIT);
-    ml.Display();
+  } catch (std::runtime_error &e) {
+    fputs("die: ", stderr);
+    fputs(e.what(), stderr);
+    return 1;
+  } catch (std::exception &e) {
+    fputs("uncaught exception: ", stderr);
+    return 1;
   }
 
   return 0;

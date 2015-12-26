@@ -1,7 +1,7 @@
 #include "fontloader.hh"
-#include "constants.hh"
+#include "../constants.hh"
 
-#include "../bzip2-1.0.6/bzlib.h"
+#include "../../bzip2-1.0.6/bzlib.h"
 
 void printBzipError(int bzerror);
 

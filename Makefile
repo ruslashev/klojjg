@@ -45,6 +45,7 @@ callgrind: objdir $(EXECNAME)
 
 objdir:
 	@mkdir -p .obj
+	@mkdir -p .obj/gfx
 
 get-deps:
 	@mkdir -p imgui

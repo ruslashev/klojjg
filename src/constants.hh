@@ -1,7 +1,8 @@
 #ifndef CONSTANTS_HH
 #define CONSTANTS_HH
 
-#include "gui.hh"
+#include "gfx/gui.hh"
+#include "state.hh"
 #include <cstdarg>
 
 const struct
@@ -20,8 +21,12 @@ struct GlobalsHolder
   int windowWidth = 1008;
   int windowHeight = 567;
 
-  // retarded
+  double mousePosX, mousePosY;
+  bool mousePressed[3];
+
+  // retarded a bit
   Gui *guiptr;
+  StateDispatcher *stateDispatcherPtr;
 };
 
 extern GlobalsHolder Globals;

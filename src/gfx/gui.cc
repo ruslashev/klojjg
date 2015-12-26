@@ -1,5 +1,6 @@
 #include "gui.hh"
-#include "constants.hh"
+#include "../constants.hh"
+#include "../state_game.hh"
 
 static void ImGuiRenderDrawLists(ImDrawData *draw_data)
 {
@@ -123,10 +124,6 @@ Gui::Gui()
   attribLocationTex = 0, attribLocationProjMtx = 0;
   attribLocationPosition = 0, attribLocationUV = 0, attribLocationColor = 0;
   vboHandle = 0, vaoHandle = 0, elementsHandle = 0;
-
-  mousePosX = 0;
-  mousePosY = 0;
-  mousePressed[0] = mousePressed[1] = mousePressed[2] = false;
 
   ImGuiIO& io = ImGui::GetIO();
   io.RenderDrawListsFn = ImGuiRenderDrawLists;
@@ -257,6 +254,11 @@ void Gui::Draw()
 
   bool yes = true;
   ImGui::ShowTestWindow(&yes);
+
+  ImGui::Begin("yes");
+  if (ImGui::Button("go game men))"))
+    Globals.stateDispatcherPtr->ChangeTo(&state_game);
+  ImGui::End();
 
   ImGui::Render();
 }

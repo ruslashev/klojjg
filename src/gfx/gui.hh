@@ -2,7 +2,7 @@
 #define GUI_HH
 
 #include <GL/glew.h>
-#include "../imgui/imgui.h"
+#include "../../imgui/imgui.h"
 #include <memory>
 
 class Gui
@@ -18,10 +18,6 @@ public:
 	int attribLocationTex, attribLocationProjMtx;
 	int attribLocationPosition, attribLocationUV, attribLocationColor;
 	unsigned int vboHandle, vaoHandle, elementsHandle;
-
-	int mousePosX;
-	int mousePosY;
-	bool mousePressed[3];
 
 	Gui();
 	~Gui();
