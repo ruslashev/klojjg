@@ -9,7 +9,7 @@
 #include <GLFW/glfw3.h>
 #include <memory>
 
-static void keyInputCb(GLFWwindow *window, int key, int scancode, int action, int mods)
+static void keyInputCb(GLFWwindow*, int key, int scancode, int action, int mods)
 {
   if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
     Globals.quit = true;
@@ -109,7 +109,8 @@ int main()
 
       double realTime = glfwGetTime();
       while (ml.simulatedTime < realTime) {
-        stateDispatcher.currentState->Update(Constants.updateMilliseconds, ml.simulatedTime);
+        stateDispatcher.currentState->Update(Constants.updateMilliseconds,
+            ml.simulatedTime);
         ml.simulatedTime += glfwGetTime();
       }
 

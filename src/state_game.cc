@@ -5,9 +5,13 @@
 
 StateGame state_game;
 
+void StateGame::Load()
+{
+
+}
+
 void StateGame::Draw()
 {
-  sd->ChangeTo(&state_mainmenu);
   glClearColor(255, 255, 255, 255);
   glClear(GL_COLOR_BUFFER_BIT);
 }

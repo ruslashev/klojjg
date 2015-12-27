@@ -6,6 +6,7 @@
 class StateGame : public BaseState
 {
 public:
+  void Load();
   void Draw();
 };
 
