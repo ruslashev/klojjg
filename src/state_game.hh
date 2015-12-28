@@ -2,10 +2,14 @@
 #define STATE_GAME_HH
 
 #include "state.hh"
+#include "gfx/gl.hh"
 
 class StateGame : public BaseState
 {
+  program *prog;
+  GLint attribute_coord2d;
 public:
+  ~StateGame();
   void Load();
   void Draw();
 };

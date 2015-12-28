@@ -10,7 +10,7 @@ BZIP_OBJS = $(patsubst bzip2-1.0.6/%.c,.obj/%.o, $(BZIP_SRCS))
 IMGUI_OBJS = .obj/imgui.o .obj/imgui_demo.o .obj/imgui_draw.o
 
 CXX = g++
-CXXFLAGS = -Wall -Wextra -Werror -g -std=c++0x -Wno-unused-parameter
+CXXFLAGS = -Wall -Wextra -Werror -g -std=c++0x -Wno-unused-parameter -Wno-unused-but-set-variable
 CC = gcc
 CCFLAGS = -w -fpermissive
 IMGUI_CXXFLAGS = -g -std=c++0x

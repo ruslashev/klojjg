@@ -24,14 +24,14 @@ void load::LoadOBJ(const char *filepath, std::vector<glm::vec3> positions,
   int current = 0, lineno = 1;
   auto ch = [&]() { return file[current]; };
   auto eat = [&]() { current++; };
-  auto eatspaces = [&]() { while (ch() == ' ' || ch() == '\t') eat; };
+  auto eatspaces = [&]() { while (ch() == ' ' || ch() == '\t') eat(); };
   if (ch() == '#') {
     while (ch() != '\n')
-      eat;
-    eat;
+      eat();
+    eat();
     lineno++;
   } else if (ch() == 'v') {
-    eat;
+    eat();
     if (ch() == 'p')
       die("vp: not implemented");
     else {
@@ -40,10 +40,10 @@ void load::LoadOBJ(const char *filepath, std::vector<glm::vec3> positions,
       for (int n = 0; n < 3; n++) {
         char numbuf[20];
         int i = 0;
-        eatspaces;
+        eatspaces();
         while ((ch() > '0' && ch() < '9') || ch() == '.' || ch() == '-') {
           numbuf[i++] = ch();
-          eat;
+          eat();
         }
         numbuf[i] = 0;
         nums[n] = atof(numbuf);
@@ -53,33 +53,33 @@ void load::LoadOBJ(const char *filepath, std::vector<glm::vec3> positions,
       else
         loc_positions.push_back(glm::vec3(nums[0], nums[1], nums[2]));
     }
-    eatspaces;
+    eatspaces();
     if (ch() != '\n')
       die("\"%s\" at line %d: error parsing vertex", filepath, lineno);
-    eat;
+    eat();
   } else if (ch() == 'f') {
-    eat;
+    eat();
     int vertex_idx[3], texcoord_idx[3], normal_idx[3];
     bool texcoords = false, normals = false;
     for (int n = 0; n < 3; n++) {
       char numbuf[20];
-      eatspaces;
+      eatspaces();
       int i = 0;
       while (ch() > '0' && ch() < '9') {
         numbuf[i++] = ch();
-        eat;
+        eat();
       }
       numbuf[i] = 0;
       vertex_idx[n] = atoi(numbuf);
 
       if (ch() != '/')
         continue;
-      eat;
+      eat();
 
       i = 0;
       while (ch() > '0' && ch() < '9') {
         numbuf[i++] = ch();
-        eat;
+        eat();
       }
       numbuf[i] = 0;
       if (i != 0) {
@@ -89,12 +89,12 @@ void load::LoadOBJ(const char *filepath, std::vector<glm::vec3> positions,
 
       if (ch() != '/')
         die("\"%s\" at line %d: expected \"/\"");
-      eat;
+      eat();
 
       i = 0;
       while (ch() > '0' && ch() < '9') {
         numbuf[i++] = ch();
-        eat;
+        eat();
       }
       numbuf[i] = 0;
       if (i != 0) {
