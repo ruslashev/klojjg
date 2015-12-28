@@ -36,6 +36,7 @@ struct GlobalsHolder
 extern GlobalsHolder Globals;
 
 void die(const char *format, ...);
+void warn(const char *format, ...);
 
 #endif
 
