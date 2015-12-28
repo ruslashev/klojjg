@@ -8,6 +8,7 @@ class StateGame : public BaseState
 {
   program *prog;
   GLint attribute_coord2d;
+  buffer *vbo;
 public:
   ~StateGame();
   void Load();

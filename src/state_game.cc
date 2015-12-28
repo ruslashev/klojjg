@@ -14,6 +14,13 @@ void StateGame::Load()
 {
   prog = new program("content/main.vs", "content/main.fs");
   attribute_coord2d = prog->bind_attribute("coord2d");
+
+  GLfloat verts[] = {
+    0.0,  0.8,
+    -0.8, -0.8,
+    0.8, -0.8,
+  };
+  vbo = new buffer(GL_ARRAY_BUFFER, sizeof(verts), verts);
 }
 
 void StateGame::Draw()
@@ -22,13 +29,9 @@ void StateGame::Draw()
   glClear(GL_COLOR_BUFFER_BIT);
 
   glUseProgram(prog->id);
+  glBindBuffer(GL_ARRAY_BUFFER, vbo->id);
   glEnableVertexAttribArray(attribute_coord2d);
-  GLfloat verts[] = {
-    0.0,  0.8,
-    -0.8, -0.8,
-    0.8, -0.8,
-  };
-  glVertexAttribPointer( attribute_coord2d, 2, GL_FLOAT, GL_FALSE, 0, verts);
+  glVertexAttribPointer( attribute_coord2d, 2, GL_FLOAT, GL_FALSE, 0, 0);
 
   glDrawArrays(GL_TRIANGLES, 0, 3);
 
