@@ -8,8 +8,8 @@
 namespace load
 {
 
-void LoadOBJ(const char *filepath, std::vector<glm::vec3> positions,
-    std::vector<glm::vec3> normals, std::vector<GLushort> elements);
+void LoadOBJ(const char *filepath, std::vector<glm::vec3> *positions,
+    std::vector<glm::vec3> *normals, std::vector<GLushort> *elements);
 
 }
 

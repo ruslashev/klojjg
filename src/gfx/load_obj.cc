@@ -4,17 +4,22 @@
 #include <fstream>
 #include <map>
 
-void load::LoadOBJ(const char *filepath, std::vector<glm::vec3> positions,
-    std::vector<glm::vec3> normals, std::vector<GLushort> elements)
+void load::LoadOBJ(const char *filepath, std::vector<glm::vec3> *positions,
+    std::vector<glm::vec3> *normals, std::vector<GLushort> *elements)
 {
-  std::ifstream in(filepath, std::ios::in);
-  if (!in)
-    die("failed to open file \"%s\"", filepath);
-  size_t len = in.tellg();
-  in.seekg(0, std::ios::beg);
-  std::vector<char> file(len);
-  in.read(&file[0], len);
-  in.close();
+  FILE *f = fopen(filepath, "rb");
+  if (!f)
+    die("failed to open file \"%s\" for reading", filepath);
+  fseek(f, 0, SEEK_END);
+  size_t len = ftell(f);
+  rewind(f);
+  char *file = new char [len];
+  if (fread(file, 1, len, f) != len) {
+    fclose(f);
+    delete [] file;
+    die("failed to read file \"%s\"", filepath);
+  }
+  fclose(f);
 
   std::vector<glm::vec3> loc_positions, loc_normals;
   std::vector<glm::vec2> loc_texcoords;
@@ -117,9 +122,17 @@ void load::LoadOBJ(const char *filepath, std::vector<glm::vec3> positions,
             normal_idx[2]);
     }
   }
-  positions = std::move(loc_positions);
-  normals = std::move(loc_normals);
-  elements = std::move(loc_elements);
+
+  puts("wutv");
+  for (auto v : loc_positions)
+    printf("(%f %f %f) ", v.x, v.y, v.z);
+
+  if (positions)
+    *positions = (loc_positions);
+  if (normals)
+    *normals = (loc_normals);
+  if (elements)
+    *elements =(loc_elements);
 }
 
 // vim: et:sw=2
