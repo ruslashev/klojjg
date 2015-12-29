@@ -14,6 +14,7 @@ struct program {
   program(const char *vert_path, const char *frag_path);
   ~program();
   GLint bind_attribute(const char *name);
+  GLint bind_uniform(const char *name);
   void use();
 };
 

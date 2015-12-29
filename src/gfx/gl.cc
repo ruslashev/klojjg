@@ -16,7 +16,7 @@ buffer::~buffer()
   glDeleteBuffers(1, &id);
 }
 
-GLuint createShader(GLenum type, const char *path)
+static GLuint createShader(GLenum type, const char *path)
 {
   FILE *file = fopen(path, "rb");
   if (!file)
@@ -88,6 +88,14 @@ GLint program::bind_attribute(const char *name)
   GLint location = glGetAttribLocation(id, name);
   if (location == -1)
     die("failed to bind attribute \"%s\"", name);
+  return location;
+}
+
+GLint program::bind_uniform(const char *name)
+{
+  GLint location = glGetUniformLocation(id, name);
+  if (location == -1)
+    die("failed to bind uniform \"%s\"", name);
   return location;
 }
 

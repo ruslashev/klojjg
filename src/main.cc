@@ -107,11 +107,11 @@ int main()
     while (ml.Update()) {
       glfwPollEvents();
 
-      double realTime = glfwGetTime();
+      double realTime = glfwGetTime() * 1000.0;
       while (ml.simulatedTime < realTime) {
+        ml.simulatedTime += Constants.updateMilliseconds;
         stateDispatcher.currentState->Update(Constants.updateMilliseconds,
             ml.simulatedTime);
-        ml.simulatedTime += glfwGetTime();
       }
 
       glClearColor(255, 0, 255, 255);
