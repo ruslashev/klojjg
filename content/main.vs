@@ -1,10 +1,10 @@
 #version 120
 
 attribute vec3 coord3d;
-uniform mat4 mat_transform;
+uniform mat4 mvp;
 
 void main(void)
 {
-  gl_Position = mat_transform * vec4(coord3d, 1.0);
+  gl_Position = mvp * vec4(coord3d, 1.0);
 }
 

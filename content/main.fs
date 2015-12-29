@@ -1,6 +1,6 @@
 #version 120
 
-uniform mat4 mat_transform;
+uniform mat4 mvp;
 
 void main(void) {
   gl_FragColor[0] = 0.0;
