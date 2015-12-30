@@ -10,6 +10,7 @@ class StateGame : public BaseState
   GLint attribute_coord3d,
         uniform_mvp;
   buffer *vbo, *ebo;
+  int elements_n;
 public:
   ~StateGame();
   void Load();
