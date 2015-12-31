@@ -31,11 +31,11 @@ void StateGame::Load()
   std::vector<tinyobj::material_t> materials;
 
   std::string err;
-  bool ret = tinyobj::LoadObj(shapes, materials, err, "content/cube.obj");
+  bool ret = tinyobj::LoadObj(shapes, materials, err, "content/level.obj");
   if (!err.empty())
     warn("%s", err.c_str());
   if (!ret)
-    die("error at parsing \"content/cube.obj\"");
+    die("error at parsing \"content/level.obj\"");
 
   for (size_t i = 0; i < shapes.size(); i++) {
     for (size_t f = 0; f < shapes[i].mesh.indices.size(); f++)
