@@ -27,22 +27,10 @@ void StateGame::Load()
   std::vector<GLfloat> positions, normals;
   std::vector<GLushort> elements;
 
-  std::vector<tinyobj::shape_t> shapes;
-  std::vector<tinyobj::material_t> materials;
+  mainworld = new world;
+  mainworld->load_from_file("content/levelone.vxl");
+  mainworld->generate_mesh(positions, elements);
 
-  std::string err;
-  bool ret = tinyobj::LoadObj(shapes, materials, err, "content/level.obj");
-  if (!err.empty())
-    warn("%s", err.c_str());
-  if (!ret)
-    die("error at parsing \"content/level.obj\"");
-
-  for (size_t i = 0; i < shapes.size(); i++) {
-    for (size_t f = 0; f < shapes[i].mesh.indices.size(); f++)
-      elements.push_back(shapes[i].mesh.indices[f]);
-    for (size_t v = 0; v < shapes[i].mesh.positions.size(); v++)
-      positions.push_back(shapes[i].mesh.positions[v]);
-  }
   elements_n = elements.size();
 
   vbo = new buffer(GL_ARRAY_BUFFER,

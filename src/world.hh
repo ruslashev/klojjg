@@ -1,11 +1,13 @@
 #ifndef WORLD_HH
 #define WORLD_HH
 
+#include <GL/glew.h>
 #include <string>
+#include <vector>
 
 struct voxel
 {
-  // zero or less -> non-walkable
+  // 1 or more -> non-walkable
   int16_t category;
 };
 
@@ -21,7 +23,8 @@ public:
 
   void load_from_file(std::string path);
   void set_size(unsigned int nsx, unsigned int nsy, unsigned int nsz);
-  void generate_mesh();
+  void generate_mesh(std::vector<GLfloat> &positions,
+      std::vector<GLushort> &elements);
 };
 
 #endif

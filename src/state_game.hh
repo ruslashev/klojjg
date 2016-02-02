@@ -1,8 +1,9 @@
 #ifndef STATE_GAME_HH
 #define STATE_GAME_HH
 
-#include "state.hh"
 #include "gfx/gl.hh"
+#include "state.hh"
+#include "world.hh"
 
 class StateGame : public BaseState
 {
@@ -11,6 +12,7 @@ class StateGame : public BaseState
         uniform_mvp;
   buffer *vbo, *ebo;
   int elements_n;
+  world *mainworld;
 public:
   ~StateGame();
   void Load();
