@@ -15,7 +15,6 @@ struct program {
   ~program();
   GLint bind_attribute(const char *name);
   GLint bind_uniform(const char *name);
-  void use();
 };
 
 #endif

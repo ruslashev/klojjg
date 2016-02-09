@@ -77,7 +77,7 @@ void push_vector_to_vector(std::vector<T> &to, std::vector<T> what)
 }
 
 void world::generate_mesh(std::vector<GLfloat> &positions,
-    std::vector<GLushort> &elements)
+    std::vector<GLushort> &elements, std::vector<GLfloat> &texcoords)
 {
   unsigned short n = 0;
   for (unsigned int z = 0; z < sz; z++)
@@ -85,29 +85,62 @@ void world::generate_mesh(std::vector<GLfloat> &positions,
       for (unsigned int x = 0; x < sx; x++)
         if (data[z][y][x].category == 1) {
           float xf = x, yf = y, zf = z; // avoiding compiler and lint warnings
-          push_vector_to_vector(positions,
-              { xf,   yf,   zf,
-                xf+1, yf,   zf,
+          int num_faces = 0;
+          if (z == 0 || (z > 0 && data[z-1][y][x].category == 0)) {
+            push_vector_to_vector(positions, {
+                xf+1, yf,   zf,   // back
+                xf,   yf,   zf,
                 xf,   yf+1, zf,
-                xf+1, yf+1, zf,
-                xf,   yf,   zf+1,
+                xf+1, yf+1, zf });
+            num_faces++;
+          }
+          if (z == sz - 1 || (z < sz - 1 && data[z+1][y][x].category == 0)) {
+            push_vector_to_vector(positions, {
+                xf,   yf,   zf+1, // front
                 xf+1, yf,   zf+1,
+                xf+1, yf+1, zf+1,
+                xf,   yf+1, zf+1 });
+            num_faces++;
+          }
+          if (y == 0 || (y > 0 && data[z][y-1][x].category == 0)) {
+            push_vector_to_vector(positions, {
+                xf,   yf,   zf,   // bottom
+                xf+1, yf,   zf,
+                xf+1, yf,   zf+1,
+                xf,   yf,   zf+1 });
+            num_faces++;
+          }
+          if (y == sy - 1 || (y < sy - 1 && data[z][y+1][x].category == 0)) {
+            push_vector_to_vector(positions, {
+                xf,   yf+1, zf+1, // top
+                xf+1, yf+1, zf+1,
+                xf+1, yf+1, zf,
+                xf,   yf+1, zf });
+            num_faces++;
+          }
+          if (x == 0 || (x > 0 && data[z][y][x-1].category == 0)) {
+            push_vector_to_vector(positions, {
+                xf,   yf,   zf,   // left
+                xf,   yf,   zf+1,
                 xf,   yf+1, zf+1,
+                xf,   yf+1, zf });
+            num_faces++;
+          }
+          if (x == sx - 1 || (x < sx - 1 && data[z][y][x+1].category == 0)) {
+            push_vector_to_vector(positions, {
+                xf+1, yf,   zf+1, // right
+                xf+1, yf,   zf,
+                xf+1, yf+1, zf,
                 xf+1, yf+1, zf+1 });
-          push_vector_to_vector(elements, // linter pls
-              { (GLushort)(n+0), (GLushort)(n+1), (GLushort)(n+2), // bottom
-                (GLushort)(n+1), (GLushort)(n+2), (GLushort)(n+3),
-                (GLushort)(n+4), (GLushort)(n+5), (GLushort)(n+6), // top
-                (GLushort)(n+5), (GLushort)(n+6), (GLushort)(n+7),
-                (GLushort)(n+7), (GLushort)(n+5), (GLushort)(n+1), // right
-                (GLushort)(n+1), (GLushort)(n+7), (GLushort)(n+3),
-                (GLushort)(n+4), (GLushort)(n+2), (GLushort)(n+0), // blaze it
-                (GLushort)(n+2), (GLushort)(n+6), (GLushort)(n+4),
-                (GLushort)(n+2), (GLushort)(n+3), (GLushort)(n+7), // front
-                (GLushort)(n+2), (GLushort)(n+6), (GLushort)(n+7),
-                (GLushort)(n+4), (GLushort)(n+5), (GLushort)(n+0), // back
-                (GLushort)(n+0), (GLushort)(n+1), (GLushort)(n+5) });
-          n += 8;
+            num_faces++;
+          }
+          for (int i = 0; i < num_faces; i++) {
+            push_vector_to_vector(elements, {
+                (GLushort)(n+0),  (GLushort)(n+1),  (GLushort)(n+2),  // front
+                (GLushort)(n+2),  (GLushort)(n+3),  (GLushort)(n+0) });
+            n += 4;
+            push_vector_to_vector(texcoords, { 0, 0, 1, 0, 1, 1, 0, 1 });
+          }
         }
 }
 

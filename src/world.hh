@@ -24,7 +24,7 @@ public:
   void load_from_file(std::string path);
   void set_size(unsigned int nsx, unsigned int nsy, unsigned int nsz);
   void generate_mesh(std::vector<GLfloat> &positions,
-      std::vector<GLushort> &elements);
+      std::vector<GLushort> &elements, std::vector<GLfloat> &texcoords);
 };
 
 #endif

@@ -1,10 +1,10 @@
 #version 120
 
-uniform mat4 mvp;
+varying vec2 f_texcoord;
+uniform sampler2D texid;
 
-void main(void) {
-  gl_FragColor[0] = 0.0;
-  gl_FragColor[1] = 0.0;
-  gl_FragColor[2] = 1.0;
+void main(void)
+{
+  gl_FragColor = texture2D(texid, f_texcoord);
 }
 

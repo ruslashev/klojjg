@@ -8,9 +8,10 @@
 class StateGame : public BaseState
 {
   program *prog;
-  GLint attribute_coord3d,
-        uniform_mvp;
-  buffer *vbo, *ebo;
+  GLint attribute_coord3d, attribute_texcoord,
+        uniform_mvp, uniform_texid;
+  buffer *vbo, *ebo, *tbo;
+  GLuint textureid;
   int elements_n;
   world *mainworld;
 public:
