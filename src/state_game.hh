@@ -19,6 +19,7 @@ public:
   void Load();
   void Draw();
   void Update(const double dt, const double time);
+  void onKeyInput(int key, int scancode, int action, int mods);
 };
 
 extern StateGame state_game;

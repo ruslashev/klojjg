@@ -11,10 +11,8 @@
 
 static void keyInputCb(GLFWwindow*, int key, int scancode, int action, int mods)
 {
-  if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-    Globals.quit = true;
-  ImGuiIO& io = ImGui::GetIO();
-  io.KeysDown[key] = (action != GLFW_RELEASE);
+  Globals.stateDispatcherPtr->currentState->onKeyInput(key, scancode, action,
+      mods);
 }
 static void mouseMoveCb(GLFWwindow *window, double xpos, double ypos)
 {
@@ -51,7 +49,7 @@ public:
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 1);
     window = glfwCreateWindow(Globals.windowWidth, Globals.windowHeight,
-        "klojjeg", NULL, NULL);
+        "klojjg", NULL, NULL);
     if (!window) {
       glfwTerminate();
       die("Failed to create window");
@@ -113,9 +111,6 @@ int main()
         stateDispatcher.currentState->Update(Constants.updateMilliseconds,
             ml.simulatedTime);
       }
-
-      glClearColor(255, 0, 255, 255);
-      glClear(GL_COLOR_BUFFER_BIT);
 
       stateDispatcher.currentState->Draw();
 

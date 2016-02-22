@@ -50,7 +50,8 @@ void StateGame::Load()
 
   glGenTextures(1, &textureid);
   glBindTexture(GL_TEXTURE_2D, textureid);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, tile.width, tile.height, 0, GL_RGB,
       GL_UNSIGNED_BYTE, tile.pixel_data);
 }
@@ -102,6 +103,12 @@ void StateGame::Draw()
 
   glDisableVertexAttribArray(attribute_coord3d);
   glDisableVertexAttribArray(attribute_texcoord);
+}
+
+void StateGame::onKeyInput(int key, int scancode, int action, int mods)
+{
+  if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+    Globals.quit = true;
 }
 
 // vim: et:sw=2

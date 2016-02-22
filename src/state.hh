@@ -11,6 +11,7 @@ public:
   virtual void Load() {};
   virtual void Update(const double dt, const double time) {};
   virtual void Draw() {};
+  virtual void onKeyInput(int key, int scancode, int action, int mods) {};
 };
 
 class StateDispatcher

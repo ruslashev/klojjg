@@ -15,5 +15,13 @@ void StateMainmenu::Draw()
   Globals.guiptr->Draw();
 }
 
+void StateMainmenu::onKeyInput(int key, int scancode, int action, int mods)
+{
+  if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+    Globals.quit = true;
+  ImGuiIO& io = ImGui::GetIO();
+  io.KeysDown[key] = (action != GLFW_RELEASE);
+}
+
 // vim: et:sw=2
 
