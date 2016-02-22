@@ -26,7 +26,7 @@ static void mouseInputCb(GLFWwindow*, int button, int action, int)
   if (action == GLFW_PRESS && button >= 0 && button <= 3)
     Globals.mousePressed[button] = true;
 }
-static void mouseScrollCb(GLFWwindow *window, double xoffset, double yoffset)
+static void mouseScrollCb(GLFWwindow*, double xoffset, double yoffset)
 {
   ImGui::GetIO().MouseWheel += (float)yoffset;
 }
@@ -90,6 +90,7 @@ int main()
 
     Globals.guiptr = &gui;
     Globals.stateDispatcherPtr = &stateDispatcher;
+    Globals.glfwWindowPtr = ml.window;
     Globals.mousePosX = Globals.mousePosY = 0;
     Globals.mousePressed[0] = Globals.mousePressed[1] =
       Globals.mousePressed[2] = false;

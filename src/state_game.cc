@@ -23,6 +23,12 @@ StateGame::~StateGame()
 
 void StateGame::Load()
 {
+  glfwSetInputMode(Globals.glfwWindowPtr, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
+  ply.position = glm::vec3(0, 0, 0);
+  ply.angles = glm::vec2(0, 0);
+  ply.computeViewMatrix();
+
   prog = new program("content/main.vs", "content/main.fs");
   attribute_coord3d = prog->bind_attribute("coord3d");
   attribute_texcoord = prog->bind_attribute("texcoord");
@@ -40,11 +46,11 @@ void StateGame::Load()
   printf("tris: %d\n", elements_n/3);
 
   vbo = new buffer(GL_ARRAY_BUFFER,
-      positions.size()*sizeof(GLfloat), positions.data());
+      positions.size() * sizeof(GLfloat), positions.data());
   ebo = new buffer(GL_ELEMENT_ARRAY_BUFFER,
-      elements.size()*sizeof(GLushort), elements.data());
+      elements.size() * sizeof(GLushort), elements.data());
   tbo = new buffer(GL_ARRAY_BUFFER,
-      texcoords.size()*sizeof(GLfloat), texcoords.data());
+      texcoords.size() * sizeof(GLfloat), texcoords.data());
 
   glEnable(GL_DEPTH_TEST);
 
@@ -56,23 +62,45 @@ void StateGame::Load()
       GL_UNSIGNED_BYTE, tile.pixel_data);
 }
 
+void StateGame::Unload()
+{
+  glfwSetInputMode(Globals.glfwWindowPtr, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+}
+
 void StateGame::Update(const double dt, const double time)
 {
-  float angle = (time / 1000.0) * 45.0,
-        move = sin(2.0 * M_PI * (time / 1000.0) / 5.0);
-  const glm::vec3 axis_z = glm::vec3(0, 0, 1),
-        axis_y = glm::vec3(0, 1, 0),
-        axis_x = glm::vec3(1, 0, 0);
-  const glm::mat4 id = glm::mat4(1.0f);
+  const float speed = 10;
+  const float dtf = dt / 1000.0f;
+  if (glfwGetKey(Globals.glfwWindowPtr, GLFW_KEY_W) == GLFW_PRESS)
+    ply.position += ply.direction * speed * dtf;
+  if (glfwGetKey(Globals.glfwWindowPtr, GLFW_KEY_S) == GLFW_PRESS)
+    ply.position -= ply.direction * speed * dtf;
+  if (glfwGetKey(Globals.glfwWindowPtr, GLFW_KEY_A) == GLFW_PRESS)
+    ply.position -= ply.cameraRight * speed * dtf;
+  if (glfwGetKey(Globals.glfwWindowPtr, GLFW_KEY_D) == GLFW_PRESS)
+    ply.position += ply.cameraRight * speed * dtf;
 
-  glm::mat4
-    rotate = glm::rotate(id, glm::radians(angle), axis_y),
-           translate = glm::translate(id, glm::vec3(0, move, 0)),
-           model = translate * rotate,
-           view = glm::lookAt(glm::vec3(0.0, 1.0, -2.0), glm::vec3(0, 0, 0), axis_y),
-           projection = glm::perspective(73.74f,
-               (float)Globals.windowWidth/(float)Globals.windowHeight, 0.1f, 100.0f),
-           mvp = projection * view * model;
+  static bool first_update = true;
+  static double mx = 0, my = 0;
+  double old_mx, old_my, mdx, mdy;
+  const double sensitivity = 2.2,
+        m_yaw = 0.022, m_pitch = 0.022;
+
+  old_mx = mx;
+  old_my = my;
+  glfwGetCursorPos(Globals.glfwWindowPtr, &mx, &my);
+  mdx = mx - old_mx;
+  mdy = my - old_my;
+  if (first_update)
+    mdx = mdy = first_update = 0;
+  ply.angles.x += glm::radians(m_pitch * mdy * sensitivity);
+  ply.angles.y += glm::radians(m_yaw * mdx * sensitivity);
+  printf("%f %f\n", mdx, mdy);
+
+  glm::mat4 view = ply.computeViewMatrix(),
+    projection = glm::perspective(73.74f,
+        (float)Globals.windowWidth/(float)Globals.windowHeight, 0.1f, 100.0f),
+    mvp = projection * view;
 
   glUseProgram(prog->id);
   glUniformMatrix4fv(uniform_mvp, 1, GL_FALSE, glm::value_ptr(mvp));

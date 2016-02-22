@@ -2,11 +2,14 @@
 #define STATE_GAME_HH
 
 #include "gfx/gl.hh"
+#include "player.hh"
 #include "state.hh"
 #include "world.hh"
 
 class StateGame : public BaseState
 {
+  Player ply;
+
   program *prog;
   GLint attribute_coord3d, attribute_texcoord,
         uniform_mvp, uniform_texid;
@@ -17,6 +20,7 @@ class StateGame : public BaseState
 public:
   ~StateGame();
   void Load();
+  void Unload();
   void Draw();
   void Update(const double dt, const double time);
   void onKeyInput(int key, int scancode, int action, int mods);

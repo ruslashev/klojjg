@@ -5,9 +5,12 @@
 StateDispatcher::StateDispatcher() {
   state_mainmenu.sd = this;
   state_game.sd = this;
+  currentState = nullptr;
 }
 
 void StateDispatcher::ChangeTo(BaseState *newState) {
+  if (currentState)
+    currentState->Unload();
   currentState = newState;
   currentState->Load();
 }
