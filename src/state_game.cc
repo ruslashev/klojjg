@@ -76,26 +76,35 @@ void StateGame::Update(const double dt, const double time)
   if (glfwGetKey(Globals.glfwWindowPtr, GLFW_KEY_S) == GLFW_PRESS)
     ply.position -= ply.direction * speed * dtf;
   if (glfwGetKey(Globals.glfwWindowPtr, GLFW_KEY_A) == GLFW_PRESS)
-    ply.position -= ply.cameraRight * speed * dtf;
+    ply.position -= ply.camera_right * speed * dtf;
   if (glfwGetKey(Globals.glfwWindowPtr, GLFW_KEY_D) == GLFW_PRESS)
-    ply.position += ply.cameraRight * speed * dtf;
+    ply.position += ply.camera_right * speed * dtf;
 
   static bool first_update = true;
-  static double mx = 0, my = 0;
-  double old_mx, old_my, mdx, mdy;
+  static double old_mouse_x = 0, old_mouse_y = 0;
+  double mdx, mdy;
   const double sensitivity = 2.2,
-        m_yaw = 0.022, m_pitch = 0.022;
+        m_pitch = 0.022, m_yaw = 0.022;
 
-  old_mx = mx;
-  old_my = my;
-  glfwGetCursorPos(Globals.glfwWindowPtr, &mx, &my);
-  mdx = mx - old_mx;
-  mdy = my - old_my;
+  mdx = Globals.mouse_x - old_mouse_x + Globals.mouse_accum_dx;
+  mdy = Globals.mouse_y - old_mouse_y + Globals.mouse_accum_dy;
+  Globals.mouse_accum_dx = Globals.mouse_accum_dy = 0;
+  old_mouse_x = Globals.mouse_x;
+  old_mouse_y = Globals.mouse_y;
   if (first_update)
     mdx = mdy = first_update = 0;
-  ply.angles.x += glm::radians(m_pitch * mdy * sensitivity);
-  ply.angles.y += glm::radians(m_yaw * mdx * sensitivity);
-  printf("%f %f\n", mdx, mdy);
+  ply.angles.x += m_pitch * mdy * sensitivity;
+  ply.angles.y += m_yaw * mdx * sensitivity;
+
+  if (ply.angles.y > 360)
+    ply.angles.y -= 360;
+  if (ply.angles.y < -360)
+    ply.angles.y -= -360;
+  if (ply.angles.x > 89.999)
+    ply.angles.x = 89.999;
+  if (ply.angles.x < -89.999)
+    ply.angles.x = -89.999;
+  printf("%f %f\n", ply.angles.x, ply.angles.y);
 
   glm::mat4 view = ply.computeViewMatrix(),
     projection = glm::perspective(73.74f,

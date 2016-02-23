@@ -17,8 +17,10 @@ static void keyInputCb(GLFWwindow*, int key, int scancode, int action, int mods)
 static void mouseMoveCb(GLFWwindow *window, double xpos, double ypos)
 {
   if (glfwGetWindowAttrib(window, GLFW_FOCUSED)) {
-    Globals.mousePosX = xpos;
-    Globals.mousePosY = ypos;
+    Globals.mouse_accum_dx += xpos - Globals.mouse_x;
+    Globals.mouse_accum_dy += ypos - Globals.mouse_y;
+    Globals.mouse_x = xpos;
+    Globals.mouse_y = ypos;
   }
 }
 static void mouseInputCb(GLFWwindow*, int button, int action, int)
@@ -91,9 +93,6 @@ int main()
     Globals.guiptr = &gui;
     Globals.stateDispatcherPtr = &stateDispatcher;
     Globals.glfwWindowPtr = ml.window;
-    Globals.mousePosX = Globals.mousePosY = 0;
-    Globals.mousePressed[0] = Globals.mousePressed[1] =
-      Globals.mousePressed[2] = false;
     ImGuiIO& io = ImGui::GetIO();
 
     ImFont *imFont;
@@ -117,7 +116,7 @@ int main()
 
       ml.Display();
 
-      io.MousePos = ImVec2(Globals.mousePosX, Globals.mousePosY);
+      io.MousePos = ImVec2(Globals.mouse_x, Globals.mouse_y);
       for (int i = 0; i < 3; i++) {
         io.MouseDown[i] = Globals.mousePressed[i];
         Globals.mousePressed[i] = false;

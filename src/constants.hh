@@ -24,8 +24,8 @@ struct GlobalsHolder
   int windowWidth = 1008;
   int windowHeight = 567;
 
-  double mousePosX, mousePosY;
-  bool mousePressed[3];
+  double mouse_x = 0, mouse_y = 0, mouse_accum_dx = 0, mouse_accum_dy = 0;
+  bool mousePressed[3] = { 0, 0, 0 };
 
   // retarded a bit
   Gui *guiptr;
