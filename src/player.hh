@@ -8,8 +8,7 @@ class Player
 {
 public:
   glm::vec3 position;
-  glm::vec2 angles; // pitch & yaw in degrees
-  glm::vec3 direction, camera_right;
+  glm::quat rotation;
 
   glm::mat4 computeViewMatrix();
 };

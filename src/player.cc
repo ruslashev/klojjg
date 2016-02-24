@@ -3,9 +3,10 @@
 glm::mat4 Player::computeViewMatrix()
 {
   const float pitch = glm::radians(angles.x), yaw = glm::radians(angles.y);
-  direction = glm::vec3(cos(pitch) * sin(yaw),
-      sin(pitch),
-      cos(pitch) * cos(yaw));
+  rev_direction =
+    glm::vec3(cos(yaw) * sin(pitch),
+        sin(yaw),
+        cos(yaw) * cos(pitch));
   glm::vec3 up = glm::vec3(0, 1, 0);
   camera_right = glm::normalize(glm::cross(up, direction));
   glm::vec3 camera_up = glm::cross(direction, camera_right);

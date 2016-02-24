@@ -136,7 +136,7 @@ void world::generate_mesh(std::vector<GLfloat> &positions,
           }
           for (int i = 0; i < num_faces; i++) {
             push_vector_to_vector(elements, {
-                (GLushort)(n+0),  (GLushort)(n+1),  (GLushort)(n+2),  // front
+                (GLushort)(n+0),  (GLushort)(n+1),  (GLushort)(n+2),
                 (GLushort)(n+2),  (GLushort)(n+3),  (GLushort)(n+0) });
             n += 4;
             push_vector_to_vector(texcoords, { 0, 0, 1, 0, 1, 1, 0, 1 });

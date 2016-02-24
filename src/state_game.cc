@@ -80,21 +80,12 @@ void StateGame::Update(const double dt, const double time)
   if (glfwGetKey(Globals.glfwWindowPtr, GLFW_KEY_D) == GLFW_PRESS)
     ply.position += ply.camera_right * speed * dtf;
 
-  static bool first_update = true;
-  static double old_mouse_x = 0, old_mouse_y = 0;
-  double mdx, mdy;
   const double sensitivity = 2.2,
         m_pitch = 0.022, m_yaw = 0.022;
 
-  mdx = Globals.mouse_x - old_mouse_x + Globals.mouse_accum_dx;
-  mdy = Globals.mouse_y - old_mouse_y + Globals.mouse_accum_dy;
+  ply.angles.x += m_pitch * Globals.mouse_accum_dy * sensitivity;
+  ply.angles.y += m_yaw * Globals.mouse_accum_dx * sensitivity;
   Globals.mouse_accum_dx = Globals.mouse_accum_dy = 0;
-  old_mouse_x = Globals.mouse_x;
-  old_mouse_y = Globals.mouse_y;
-  if (first_update)
-    mdx = mdy = first_update = 0;
-  ply.angles.x += m_pitch * mdy * sensitivity;
-  ply.angles.y += m_yaw * mdx * sensitivity;
 
   if (ply.angles.y > 360)
     ply.angles.y -= 360;
@@ -104,10 +95,9 @@ void StateGame::Update(const double dt, const double time)
     ply.angles.x = 89.999;
   if (ply.angles.x < -89.999)
     ply.angles.x = -89.999;
-  printf("%f %f\n", ply.angles.x, ply.angles.y);
 
   glm::mat4 view = ply.computeViewMatrix(),
-    projection = glm::perspective(73.74f,
+    projection = glm::perspective(glm::radians(90.f),
         (float)Globals.windowWidth/(float)Globals.windowHeight, 0.1f, 100.0f),
     mvp = projection * view;
 
