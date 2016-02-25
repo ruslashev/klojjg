@@ -84,54 +84,56 @@ void world::generate_mesh(std::vector<GLfloat> &positions,
     for (unsigned int y = 0; y < sy; y++)
       for (unsigned int x = 0; x < sx; x++)
         if (data[z][y][x].category == 1) {
-          float xf = x, yf = y, zf = z; // avoiding compiler and lint warnings
+          float xs = x*Constants.block_scale, xsp1 = (x+1)*Constants.block_scale,
+                ys = y*Constants.block_scale, ysp1 = (y+1)*Constants.block_scale,
+                zs = z*Constants.block_scale, zsp1 = (z+1)*Constants.block_scale;
           int num_faces = 0;
           if (z == 0 || (z > 0 && data[z-1][y][x].category == 0)) {
             push_vector_to_vector(positions, {
-                xf+1, yf,   zf,   // back
-                xf,   yf,   zf,
-                xf,   yf+1, zf,
-                xf+1, yf+1, zf });
+                xsp1, ys,   zs,   // back
+                xs,   ys,   zs,
+                xs,   ysp1, zs,
+                xsp1, ysp1, zs });
             num_faces++;
           }
           if (z == sz - 1 || (z < sz - 1 && data[z+1][y][x].category == 0)) {
             push_vector_to_vector(positions, {
-                xf,   yf,   zf+1, // front
-                xf+1, yf,   zf+1,
-                xf+1, yf+1, zf+1,
-                xf,   yf+1, zf+1 });
+                xs,   ys,   zsp1, // front
+                xsp1, ys,   zsp1,
+                xsp1, ysp1, zsp1,
+                xs,   ysp1, zsp1 });
             num_faces++;
           }
           if (y == 0 || (y > 0 && data[z][y-1][x].category == 0)) {
             push_vector_to_vector(positions, {
-                xf,   yf,   zf,   // bottom
-                xf+1, yf,   zf,
-                xf+1, yf,   zf+1,
-                xf,   yf,   zf+1 });
+                xs,   ys,   zs,   // bottom
+                xsp1, ys,   zs,
+                xsp1, ys,   zsp1,
+                xs,   ys,   zsp1 });
             num_faces++;
           }
           if (y == sy - 1 || (y < sy - 1 && data[z][y+1][x].category == 0)) {
             push_vector_to_vector(positions, {
-                xf,   yf+1, zf+1, // top
-                xf+1, yf+1, zf+1,
-                xf+1, yf+1, zf,
-                xf,   yf+1, zf });
+                xs,   ysp1, zsp1, // top
+                xsp1, ysp1, zsp1,
+                xsp1, ysp1, zs,
+                xs,   ysp1, zs });
             num_faces++;
           }
           if (x == 0 || (x > 0 && data[z][y][x-1].category == 0)) {
             push_vector_to_vector(positions, {
-                xf,   yf,   zf,   // left
-                xf,   yf,   zf+1,
-                xf,   yf+1, zf+1,
-                xf,   yf+1, zf });
+                xs,   ys,   zs,   // left
+                xs,   ys,   zsp1,
+                xs,   ysp1, zsp1,
+                xs,   ysp1, zs });
             num_faces++;
           }
           if (x == sx - 1 || (x < sx - 1 && data[z][y][x+1].category == 0)) {
             push_vector_to_vector(positions, {
-                xf+1, yf,   zf+1, // right
-                xf+1, yf,   zf,
-                xf+1, yf+1, zf,
-                xf+1, yf+1, zf+1 });
+                xsp1, ys,   zsp1, // right
+                xsp1, ys,   zs,
+                xsp1, ysp1, zs,
+                xsp1, ysp1, zsp1 });
             num_faces++;
           }
           for (int i = 0; i < num_faces; i++) {

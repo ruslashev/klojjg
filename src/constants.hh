@@ -15,6 +15,7 @@ const struct
   int fontMemoryGuess = 5*1024*1024;
   int fontSize = 20;
   int fontOversample = 8;
+  float block_scale = 2;
 } Constants {};
 
 struct GlobalsHolder
