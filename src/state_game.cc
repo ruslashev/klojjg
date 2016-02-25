@@ -26,7 +26,7 @@ void StateGame::Load()
   glfwSetInputMode(Globals.glfwWindowPtr, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
   ply.position = glm::vec3(0, 0, 0);
-  ply.angles = glm::vec2(0, 0);
+  ply.view_angles = glm::vec2(0, 0);
   ply.computeViewMatrix();
 
   prog = new program("content/main.vs", "content/main.fs");
@@ -72,29 +72,29 @@ void StateGame::Update(const double dt, const double time)
   const float speed = 10;
   const float dtf = dt / 1000.0f;
   if (glfwGetKey(Globals.glfwWindowPtr, GLFW_KEY_W) == GLFW_PRESS)
-    ply.position += ply.direction * speed * dtf;
+    ply.position += ply.view_direction * speed * dtf;
   if (glfwGetKey(Globals.glfwWindowPtr, GLFW_KEY_S) == GLFW_PRESS)
-    ply.position -= ply.direction * speed * dtf;
+    ply.position -= ply.view_direction * speed * dtf;
   if (glfwGetKey(Globals.glfwWindowPtr, GLFW_KEY_A) == GLFW_PRESS)
-    ply.position -= ply.camera_right * speed * dtf;
+    ply.position -= ply.view_right * speed * dtf;
   if (glfwGetKey(Globals.glfwWindowPtr, GLFW_KEY_D) == GLFW_PRESS)
-    ply.position += ply.camera_right * speed * dtf;
+    ply.position += ply.view_right * speed * dtf;
 
   const double sensitivity = 2.2,
         m_pitch = 0.022, m_yaw = 0.022;
 
-  ply.angles.x += m_pitch * Globals.mouse_accum_dy * sensitivity;
-  ply.angles.y += m_yaw * Globals.mouse_accum_dx * sensitivity;
+  ply.view_angles.x -= m_pitch * Globals.mouse_accum_dy * sensitivity;
+  ply.view_angles.y -= m_yaw * Globals.mouse_accum_dx * sensitivity;
   Globals.mouse_accum_dx = Globals.mouse_accum_dy = 0;
 
-  if (ply.angles.y > 360)
-    ply.angles.y -= 360;
-  if (ply.angles.y < -360)
-    ply.angles.y -= -360;
-  if (ply.angles.x > 89.999)
-    ply.angles.x = 89.999;
-  if (ply.angles.x < -89.999)
-    ply.angles.x = -89.999;
+  if (ply.view_angles.y > 360)
+    ply.view_angles.y -= 360;
+  if (ply.view_angles.y < -360)
+    ply.view_angles.y -= -360;
+  if (ply.view_angles.x > 89.999)
+    ply.view_angles.x = 89.999;
+  if (ply.view_angles.x < -89.999)
+    ply.view_angles.x = -89.999;
 
   glm::mat4 view = ply.computeViewMatrix(),
     projection = glm::perspective(glm::radians(90.f),
