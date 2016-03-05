@@ -1,6 +1,4 @@
 .obj/*
+deps/*
 klojjg
-bzip2*/*
-imgui/*
-tinyobjloader/*
 

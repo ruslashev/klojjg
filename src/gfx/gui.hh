@@ -1,8 +1,8 @@
 #ifndef GUI_HH
 #define GUI_HH
 
+#include "../../deps/imgui/imgui.h"
 #include <GL/glew.h>
-#include "../../imgui/imgui.h"
 #include <memory>
 
 class Gui

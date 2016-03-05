@@ -5,7 +5,6 @@
 #include "state.hh"
 
 #include <GLFW/glfw3.h>
-
 #include <cstdarg>
 
 const struct

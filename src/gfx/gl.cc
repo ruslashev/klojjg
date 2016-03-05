@@ -1,6 +1,5 @@
 #include "gl.hh"
 #include "../constants.hh"
-
 #include <fstream>
 
 buffer::buffer(GLenum target, GLsizei size, const void *data)

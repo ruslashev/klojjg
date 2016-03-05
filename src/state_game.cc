@@ -1,17 +1,16 @@
 #include "constants.hh"
 #include "state_game.hh"
 #include "state_mainmenu.hh"
+#include "tile.c"
 
 #define TINYOBJLOADER_IMPLEMENTATION
-#include "../tinyobjloader/tiny_obj_loader.h"
+#include "../deps/tinyobjloader/tiny_obj_loader.h"
 
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <vector>
-
-#include "tile.c"
 
 StateGame state_game;
 

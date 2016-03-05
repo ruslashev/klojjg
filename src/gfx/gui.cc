@@ -1,7 +1,6 @@
 #include "gui.hh"
 #include "../constants.hh"
 #include "../state_game.hh"
-
 #include <GLFW/glfw3.h>
 
 static void ImGuiRenderDrawLists(ImDrawData *draw_data)
