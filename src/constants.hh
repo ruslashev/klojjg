@@ -1,5 +1,4 @@
-#ifndef CONSTANTS_HH
-#define CONSTANTS_HH
+#pragma once
 
 #include "gfx/gui.hh"
 #include "state.hh"
@@ -37,8 +36,6 @@ extern GlobalsHolder Globals;
 
 void die(const char *format, ...);
 void warn(const char *format, ...);
-
-#endif
 
 // vim: et:sw=2
 

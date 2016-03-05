@@ -1,5 +1,4 @@
-#ifndef GL_HH
-#define GL_HH
+#pragma once
 
 #include <GL/glew.h>
 
@@ -16,8 +15,6 @@ struct program {
   GLint bind_attribute(const char *name);
   GLint bind_uniform(const char *name);
 };
-
-#endif
 
 // vim: et:sw=2
 

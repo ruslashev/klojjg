@@ -1,5 +1,4 @@
-#ifndef GUI_HH
-#define GUI_HH
+#pragma once
 
 #include "../../deps/imgui/imgui.h"
 #include <GL/glew.h>
@@ -31,8 +30,6 @@ public:
   void Update(int dt);
   void Draw();
 };
-
-#endif
 
 // vim: et:sw=2
 

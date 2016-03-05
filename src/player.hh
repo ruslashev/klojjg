@@ -1,5 +1,4 @@
-#ifndef PLAYER_HH
-#define PLAYER_HH
+#pragma once
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -13,8 +12,6 @@ public:
 
   glm::mat4 computeViewMatrix();
 };
-
-#endif
 
 // vim: et:sw=2
 

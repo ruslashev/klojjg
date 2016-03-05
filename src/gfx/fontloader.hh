@@ -1,5 +1,4 @@
-#ifndef FONTLOADER_HH
-#define FONTLOADER_HH
+#pragma once
 
 #include "../../deps/imgui/imgui.h"
 #include <memory>
@@ -12,6 +11,4 @@ bool loadEmbeddedFont(ImFont *&imFont,
 		const char *compData, unsigned int compSize);
 
 };
-
-#endif
 

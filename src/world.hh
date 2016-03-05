@@ -1,5 +1,4 @@
-#ifndef WORLD_HH
-#define WORLD_HH
+#pragma once
 
 #include <GL/glew.h>
 #include <string>
@@ -26,8 +25,6 @@ public:
   void generate_mesh(std::vector<GLfloat> &positions,
       std::vector<GLushort> &elements, std::vector<GLfloat> &texcoords);
 };
-
-#endif
 
 // vim: et:sw=2
 

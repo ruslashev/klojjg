@@ -1,5 +1,4 @@
-#ifndef STATE_GAME_HH
-#define STATE_GAME_HH
+#pragma once
 
 #include "gfx/gl.hh"
 #include "player.hh"
@@ -27,8 +26,6 @@ public:
 };
 
 extern StateGame state_game;
-
-#endif
 
 // vim: et:sw=2
 

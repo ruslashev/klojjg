@@ -1,5 +1,4 @@
-#ifndef STATE_HH
-#define STATE_HH
+#pragma once
 
 class StateDispatcher;
 
@@ -23,8 +22,6 @@ public:
   StateDispatcher();
   void ChangeTo(BaseState *newState);
 };
-
-#endif
 
 // vim: et:sw=2
 

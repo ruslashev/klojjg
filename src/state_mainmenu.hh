@@ -1,5 +1,4 @@
-#ifndef STATE_MAINMENU_HH
-#define STATE_MAINMENU_HH
+#pragma once
 
 #include "state.hh"
 
@@ -11,8 +10,6 @@ public:
 };
 
 extern StateMainmenu state_mainmenu;
-
-#endif
 
 // vim: et:sw=2
 
