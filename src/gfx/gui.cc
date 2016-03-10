@@ -51,7 +51,7 @@ static void ImGuiRenderDrawLists(ImDrawData *draw_data)
     { 0.0f,                  0.0f,                  -1.0f, 0.0f },
     {-1.0f,                  1.0f,                   0.0f, 1.0f },
   };
-  glUseProgram(gui->shaderHandle);
+  gui->shader_program->use();
   glUniform1i(gui->attribLocationTex, 0);
   glUniformMatrix4fv(gui->attribLocationProjMtx, 1, GL_FALSE,
       &ortho_projection[0][0]);
@@ -108,6 +108,7 @@ static void ImGuiRenderDrawLists(ImDrawData *draw_data)
 static const char* GetClipboardText() {
   return glfwGetClipboardString(Globals.glfwWindowPtr);
 }
+
 static void SetClipboardText(const char* text) {
   glfwSetClipboardString(Globals.glfwWindowPtr, text);
 }
@@ -119,9 +120,8 @@ Gui::Gui()
     die("Failed to initialize GLEW: %s", glewGetErrorString(err));
 
   fontTexture = 0;
-  shaderHandle = 0, vertHandle = 0, fragHandle = 0;
-  attribLocationTex = 0, attribLocationProjMtx = 0;
-  attribLocationPosition = 0, attribLocationUV = 0, attribLocationColor = 0;
+  attribLocationTex = attribLocationProjMtx = attribLocationPosition = 0;
+  attribLocationUV = attribLocationColor = 0;
   vboHandle = 0, vaoHandle = 0, elementsHandle = 0;
 
   ImGuiIO& io = ImGui::GetIO();
@@ -134,81 +134,18 @@ Gui::Gui()
   io.KeyRepeatDelay = 5.5;
   io.KeyRepeatRate = 1.1;
 
-  const GLchar *vertex_shader =
-    "#version 120\n"
-    "uniform mat4 ProjMtx;\n"
-    "attribute vec2 Position;\n"
-    "attribute vec2 UV;\n"
-    "attribute vec4 Color;\n"
-    "varying vec2 Frag_UV;\n"
-    "varying vec4 Frag_Color;\n"
-    "void main()\n"
-    "{\n"
-    "	Frag_UV = UV;\n"
-    "	Frag_Color = Color;\n"
-    "	gl_Position = ProjMtx * vec4(Position.xy,0,1);\n"
-    "}\n";
+  shader_program = new program("content/gui.vs", "content/gui.fs");
 
-  const GLchar* fragment_shader =
-    "#version 120\n"
-    "uniform sampler2D Texture;\n"
-    "varying vec2 Frag_UV;\n"
-    "varying vec4 Frag_Color;\n"
-    "void main()\n"
-    "{\n"
-    "	gl_FragColor = Frag_Color * texture2D(Texture, Frag_UV.st);\n"
-    "}\n";
-
-  shaderHandle = glCreateProgram();
-  vertHandle = glCreateShader(GL_VERTEX_SHADER);
-  fragHandle = glCreateShader(GL_FRAGMENT_SHADER);
-  glShaderSource(vertHandle, 1, &vertex_shader, 0);
-  glShaderSource(fragHandle, 1, &fragment_shader, 0);
-  glCompileShader(vertHandle);
-  glCompileShader(fragHandle);
-  glAttachShader(shaderHandle, vertHandle);
-  glAttachShader(shaderHandle, fragHandle);
-  glLinkProgram(shaderHandle);
-
-  checkShaderCompileSuccess(vertHandle);
-  checkShaderCompileSuccess(fragHandle);
-  checkProgramLinkSuccess(shaderHandle);
-
-  attribLocationTex = glGetUniformLocation(shaderHandle, "Texture");
-  attribLocationProjMtx = glGetUniformLocation(shaderHandle, "ProjMtx");
-  attribLocationPosition = glGetAttribLocation(shaderHandle, "Position");
-  attribLocationUV = glGetAttribLocation(shaderHandle, "UV");
-  attribLocationColor = glGetAttribLocation(shaderHandle, "Color");
+  attribLocationPosition = shader_program->bind_attribute("Position");
+  attribLocationUV = shader_program->bind_attribute("UV");
+  attribLocationColor = shader_program->bind_attribute("Color");
+  attribLocationProjMtx = shader_program->bind_uniform("ProjMtx");
+  attribLocationTex = shader_program->bind_uniform("Texture");
 
   glGenBuffers(1, &vboHandle);
   glGenBuffers(1, &elementsHandle);
 
   glGenVertexArrays(1, &vaoHandle);
-}
-
-void Gui::checkShaderCompileSuccess(int shader)
-{
-  GLint status, type;
-  glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
-  glGetShaderiv(shader, GL_SHADER_TYPE, &type);
-  if (status == GL_FALSE) {
-    char buffer[1024];
-    glGetShaderInfoLog(shader, 1024, NULL, buffer);
-    die("Failed to compile %s shader:\n%s",
-        type == GL_VERTEX_SHADER ? "vertex" : "fragment",
-        buffer);
-  }
-}
-
-void Gui::checkProgramLinkSuccess(int program)
-{
-  GLint status;
-  glGetProgramiv(program, GL_LINK_STATUS, &status);
-  if (status == GL_FALSE) {
-    char buffer[1024];
-    glGetProgramInfoLog(vertHandle, 1024, NULL, buffer);
-    die("Failed to link shaders:\n%s", buffer);
-  }
 }
 
 void Gui::CreateFontTexture(ImFont *imFont)
@@ -271,16 +208,7 @@ Gui::~Gui()
   if (elementsHandle) glDeleteBuffers(1, &elementsHandle);
   vaoHandle = vboHandle = elementsHandle = 0;
 
-  glDetachShader(shaderHandle, vertHandle);
-  glDeleteShader(vertHandle);
-  vertHandle = 0;
-
-  glDetachShader(shaderHandle, fragHandle);
-  glDeleteShader(fragHandle);
-  fragHandle = 0;
-
-  glDeleteProgram(shaderHandle);
-  shaderHandle = 0;
+  delete shader_program;
 
   ImGuiIO& io = ImGui::GetIO();
   io.Fonts->ClearInputData();

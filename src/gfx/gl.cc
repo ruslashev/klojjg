@@ -15,7 +15,7 @@ buffer::~buffer()
   glDeleteBuffers(1, &id);
 }
 
-static GLuint createShader(GLenum type, const char *path)
+static GLuint create_shader(GLenum type, const char *path)
 {
   FILE *file = fopen(path, "rb");
   if (!file)
@@ -53,8 +53,8 @@ static GLuint createShader(GLenum type, const char *path)
 program::program(const char *vert_path, const char *frag_path)
 {
   id = glCreateProgram();
-  GLuint shader1 = createShader(GL_VERTEX_SHADER, vert_path);
-  GLuint shader2 = createShader(GL_FRAGMENT_SHADER, frag_path);
+  GLuint shader1 = create_shader(GL_VERTEX_SHADER, vert_path);
+  GLuint shader2 = create_shader(GL_FRAGMENT_SHADER, frag_path);
   glAttachShader(id, shader1);
   glAttachShader(id, shader2);
   glLinkProgram(id);
@@ -96,6 +96,11 @@ GLint program::bind_uniform(const char *name)
   if (location == -1)
     die("failed to bind uniform \"%s\"", name);
   return location;
+}
+
+void program::use()
+{
+  glUseProgram(id);
 }
 
 // vim: et:sw=2

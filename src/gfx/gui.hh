@@ -1,5 +1,7 @@
 #pragma once
 
+#include "gl.hh"
+
 #include "../../deps/imgui/imgui.h"
 #include <GL/glew.h>
 #include <memory>
@@ -7,13 +9,12 @@
 class Gui
 {
   ImFont *font;
-  char editingBuffer[16*1024];
 
   void checkShaderCompileSuccess(int shader);
   void checkProgramLinkSuccess(int program);
 public:
   GLuint fontTexture;
-  int shaderHandle, vertHandle, fragHandle;
+  program *shader_program;
   int attribLocationTex, attribLocationProjMtx;
   int attribLocationPosition, attribLocationUV, attribLocationColor;
   unsigned int vboHandle, vaoHandle, elementsHandle;
